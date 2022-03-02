@@ -22,19 +22,24 @@
             <SmartTab
               :id="'params'"
               :label="`${$t('tab.parameters')}`"
-              :selected="true"
+              :selected="initialTab === 'params'"
               :info="`${newActiveParamsCount$}`"
             >
               <HttpParameters />
             </SmartTab>
 
-            <SmartTab :id="'bodyParams'" :label="`${$t('tab.body')}`">
+            <SmartTab
+              :id="'bodyParams'"
+              :label="`${$t('tab.body')}`"
+              :selected="initialTab === 'body'"
+            >
               <HttpBody />
             </SmartTab>
 
             <SmartTab
               :id="'headers'"
               :label="`${$t('tab.headers')}`"
+              :selected="initialTab === 'headers'"
               :info="`${newActiveHeadersCount$}`"
             >
               <HttpHeaders />
@@ -43,6 +48,7 @@
             <SmartTab
               :id="'authorization'"
               :label="`${$t('tab.authorization')}`"
+              :selected="initialTab === 'auth'"
             >
               <HttpAuthorization />
             </SmartTab>
@@ -50,6 +56,7 @@
             <SmartTab
               :id="'preRequestScript'"
               :label="`${$t('tab.pre_request_script')}`"
+              :selected="initialTab === 'script'"
               :indicator="
                 preRequestScript && preRequestScript.length > 0 ? true : false
               "
@@ -60,6 +67,7 @@
             <SmartTab
               :id="'tests'"
               :label="`${$t('tab.tests')}`"
+              :selected="initialTab === 'tests'"
               :indicator="testScript && testScript.length > 0 ? true : false"
             >
               <HttpTests />
@@ -271,10 +279,21 @@ export default defineComponent({
     setupRequestSync(confirmSync, requestForSync)
     bindRequestToURLParams()
 
+    const { route } = useContext()
+    let initialTab = route.value.query.tab
+    if (
+      !["params", "body", "headers", "auth", "script", "tests"].includes(
+        initialTab
+      )
+    ) {
+      initialTab = "params"
+    }
+
     const breakpoints = useBreakpoints(breakpointsTailwind)
     const mdAndLarger = breakpoints.greater("md")
 
     return {
+      initialTab,
       mdAndLarger,
       newActiveParamsCount$: useReadonlyStream(
         restActiveParamsCount$.pipe(
